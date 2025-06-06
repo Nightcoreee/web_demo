@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân Tích và Dự Đoán Chất Lượng Không Khí</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button.active {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+        }
+        .section-divider {
+            border-top: 2px dashed #cbd5e1; /* border-gray-300 */
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        th, td {
+            border: 1px solid #e2e8f0; /* border-gray-300 */
+            padding: 0.5rem;
+            text-align: left;
+        }
+        th {
+            background-color: #f7fafc; /* bg-gray-50 */
+        }
+        .model-section h4 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #4a5568; /* text-gray-700 */
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <header class="bg-blue-600 text-white p-6 shadow-md">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold text-center">Phân Tích và Dự Đoán Chất Lượng Không Khí</h1>
+            <p class="text-center text-lg mt-2">Dựa trên dữ liệu phân tích và kết quả thực nghiệm</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <!-- Giới thiệu -->
+        <section class="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-700">Giới Thiệu Chung</h2>
+            <p class="text-lg leading-relaxed">
+                Nghiên cứu này tập trung vào việc phân tích chi tiết dữ liệu về các chất ô nhiễm không khí phổ biến như SO₄²⁻, NO₃⁻, và NH₄⁺, cùng với các yếu tố khí tượng ảnh hưởng.
+                Thông qua các phương pháp thống kê và trực quan hóa dữ liệu, nghiên cứu làm rõ đặc điểm phân bố, xu hướng biến động và mối tương quan giữa các yếu tố này cho cả bài toán dự đoán đơn biến và đa biến.
+                Tiếp đó, nghiên cứu tiến hành xây dựng và đánh giá hiệu suất của các mô hình học máy tiên tiến (bao gồm Linear Regression, Support Vector Regression, Random Forest, và XGBoost)
+                trong việc dự đoán nồng độ các chất ô nhiễm, hỗ trợ công tác quản lý và cải thiện chất lượng không khí.
+            </p>
+        </section>
+
+        <!-- Tabs -->
+        <div class="mb-8">
+            <div class="flex border-b border-gray-300">
+                <button class="tab-button py-2 px-4 text-lg font-medium text-gray-600 hover:bg-gray-200 focus:outline-none active" onclick="openTab(event, 'dataAnalysis')">Phân Tích Dữ Liệu</button>
+                <button class="tab-button py-2 px-4 text-lg font-medium text-gray-600 hover:bg-gray-200 focus:outline-none" onclick="openTab(event, 'experimentalResults')">Kết Quả Thực Nghiệm</button>
+            </div>
+        </div>
+
+        <!-- Nội dung Tabs -->
+        <div id="dataAnalysis" class="tab-content active">
+            <section class="bg-white p-6 rounded-lg shadow-lg mb-8">
+                <h2 class="text-2xl font-semibold mb-6 text-blue-700 border-b pb-2">Phân Tích Dữ Liệu Cho Bài Toán Đơn Biến và Đa Biến</h2>
+
+                <!-- Phân Tích Cho Bài Toán Đơn Biến -->
+                <section class="mb-10">
+                    <h3 class="text-xl font-bold mb-4 text-green-700 py-2 bg-green-50 px-3 rounded-md">Phân Tích Dữ Liệu Cho Bài Toán Dự Đoán Chuỗi Thời Gian Đơn Biến</h3>
+                    <p class="text-md text-gray-600 mb-4">Phân tích đặc điểm và tương quan của các chất ô nhiễm chính (SO₄²⁻, NO₃⁻, NH₄⁺) khi xem xét dự đoán dựa trên lịch sử của chính chúng.</p>
+
+                    <div class="mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <h4 class="text-lg font-semibold mb-3 text-indigo-600">1. Phân Bố Nồng Độ SO₄²⁻ (Đơn biến)</h4>
+                        <div class="grid md:grid-cols-2 gap-6 items-center">
+                            <div>
+                                <img src="img/PTDL/his_SO4_Uni.png" alt="Biểu đồ Histogram và KDE nồng độ SO42-" class="rounded-lg shadow-md w-full">
+                                <p class="text-sm text-center mt-2 text-gray-600">Hình 1: Biểu đồ Histogram + KDE nồng độ SO₄²⁻.</p>
+                            </div>
+                            <div>
+                                <h5 class="text-md font-medium mb-2"> <strong>Nhận xét:</strong></h5>
+                                <ul class="list-disc list-inside space-y-1 text-gray-700 leading-relaxed">
+                                    <li>Phân bố <strong>bimodal</strong>, gợi ý hai nguồn phát thải.</li>
+                                    <li>Đỉnh cao nhất: <strong>5-6 μg/m³</strong>; Đỉnh thứ hai: <strong>3-4 μg/m³</strong>.</li>
+                                    <li>Có một số điểm rải rác nằm ở bên trái gần 0 và bên phải gần 10, đây có thể là các biến ngoại lai.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <h4 class="text-lg font-semibold mb-3 text-indigo-600">2. Phân Bố Nồng Độ NO₃⁻ (Đơn biến)</h4>
+                         <div class="grid md:grid-cols-2 gap-6 items-center">
+                            <div>
+                                <img src="img/PTDL/his_NO3_Uni.png" alt="Biểu đồ Histogram và KDE nồng độ NO3-" class="rounded-lg shadow-md w-full">
+                                <p class="text-sm text-center mt-2 text-gray-600">Hình 2: Biểu đồ Histogram + KDE nồng độ NO₃⁻.</p>
+                            </div>
+                            <div>
+                                <h5 class="text-md font-medium mb-2"><strong>Nhận xét:</strong></h5>
+                                <ul class="list-disc list-inside space-y-1 text-gray-700 leading-relaxed">
+                                    <li>Đặc điểm <strong>bimodal</strong>: đỉnh <strong>1-2 μg/m³</strong> và đỉnh <strong>5-6 μg/m³</strong>.</li>
+                                    <li>Xu hướng <strong>lệch phải</strong>.</li>
+                                    <li>Phân bố có đuôi kéo dài sang bên phải, cho thấy một số thời điểm có nồng độ tăng đột biến.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <h4 class="text-lg font-semibold mb-3 text-indigo-600">3. Phân Bố Nồng Độ NH₄⁺ (Đơn biến)</h4>
+                        <div class="grid md:grid-cols-2 gap-6 items-center">
+                            <div>
+                                <img src="img/PTDL/his_NH4_Uni.png" alt="Biểu đồ Histogram và KDE nồng độ NH4+" class="rounded-lg shadow-md w-full">
+                                <p class="text-sm text-center mt-2 text-gray-600">Hình 3: Biểu đồ Histogram + KDE nồng độ NH₄⁺.</p>
+                            </div>
+                            <div>
+                                <h5 class="text-md font-medium mb-2"><strong>Nhận xét:</strong></h5>
+                                <ul class="list-disc list-inside space-y-1 text-gray-700 leading-relaxed">
+                                    <li>Tập trung mạnh tại khoảng <strong>1 μg/m³</strong>.</li>
+                                    <li>Phân bố <strong>lệch phải</strong>.</li>
+                                    <li>Gỉam dần về phía bên phải, cho thấy ở một vài thời điểm vẫn có sự xuất hiện <strong>nồng độ cao</strong> của chất NH₄⁺.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8 mt-10">
+                        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                            <h4 class="text-lg font-semibold mb-3 text-indigo-600">4. So Sánh Boxplot (SO₄²⁻, NO₃⁻, NH₄⁺)</h4>
+                            <img src="img/PTDL/box_Uni.png" alt="Biểu đồ Boxplot 3 chất ô nhiễm chính" class="rounded-lg shadow-md w-full">
+                            <p class="text-sm text-center mt-2 text-gray-600">Hình 4: Boxplot 3 chất SO₄²⁻, NO₃⁻, NH₄⁺.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <ul class="list-disc list-inside space-y-1 text-gray-700 leading-relaxed">
+                                <li><strong>SO₄²⁻:</strong> Trung vị cao (~5.8 μg/m³).</li>
+                                <li><strong>NO₃⁻:</strong> Trung vị thấp hơn (~4.7 μg/m³).</li>
+                                <li><strong>NH₄⁺:</strong> Trung vị thấp nhất (~1.14 μg/m³), nhiều ngoại lai.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                            <h4 class="text-lg font-semibold mb-3 text-indigo-600">5. Tương Quan Giữa (SO₄²⁻, NO₃⁻, NH₄⁺) - Heatmap</h4>
+                            <img src="img/PTDL/heat_Uni.png" alt="Biểu đồ Heatmap tương quan 3 chất ô nhiễm chính" class="rounded-lg shadow-md w-full">
+                            <p class="text-sm text-center mt-2 text-gray-600">Hình 5: Heatmap tương quan SO₄²⁻, NO₃⁻, NH₄⁺.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <ul class="list-disc list-inside space-y-1 text-gray-700 leading-relaxed">
+                                <li><strong>SO₄²⁻ và NO₃⁻:</strong> Tương quan rất mạnh (0.88).</li>
+                                <li><strong>SO₄²⁻ và NO₃⁻:</strong>  có mối tương quan mật thiết với nhau, chúng có thể cùng chịu ảnh hưởng từ môi trường giống nhau.</li>
+                                <li>Còn NH₄⁺ thì ít liên quan tới 2 chất còn lại.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="section-divider"></div>
+
+                <!-- Phân Tích Cho Bài Toán Đa Biến -->
+                <section>
+                    <h3 class="text-xl font-bold mb-4 text-green-700 py-2 bg-green-50 px-3 rounded-md">Phân Tích Dữ Liệu Cho Bài Toán Dự Đoán Chuỗi Thời Gian Đa Biến</h3>
+                    <p class="text-md text-gray-600 mb-4">Phân tích các yếu tố khí tượng và tất cả các chất ô nhiễm, cùng mối tương quan của chúng khi xem xét dự đoán có sử dụng nhiều yếu tố đầu vào.</p>
+
+                    <h4 class="text-lg font-semibold my-4 text-indigo-600">1. Phân Bố Các Yếu Tố Khí Tượng (Histogram + KDE)</h4>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                        <!-- Temp -->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_Temp_Mul.png" alt="Biểu đồ phân bố Nhiệt độ" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 6: Phân bố Nhiệt độ.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Nhiệt độ chủ yếu dao động từ 28-30°C, phân phối đối xứng.</li>
+                            <li>Tần suất giảm dần đều về hai phía.</li>
+                            <li>Nhiệt độ 26.5°C và 31.3°C xuất hiện hiếm.</li>
+                        </div>
+                        <!-- RH -->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_RH_Mul.png" alt="Biểu đồ phân bố Độ ẩm" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 7: Phân bố Độ ẩm.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Tập trung mạnh ở khoảng 70-80 %, phản ánh độ ẩm luôn ở mức cao.</li>
+                            <li>Phân bố lệch trái khá nhiều.</li>
+                            <li>Xuất hiện Outliers ở mức 10-50% và ở mức 90% khá rõ rệt.</li>
+                        </div>
+                        <!-- Ws -->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_Ws_Mul.png" alt="Biểu đồ phân bố Tốc độ gió" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 8: Phân bố Tốc độ gió.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Tập trung mạnh ở khoảng 1-1,3 (m/s).</li>
+                            <li>Phân bố lệch phải khá rõ rệt nằm trong khoảng từ 1.4 đến 2.2 (m/s).</li>
+                            <li>Vào một vài thời điểm vẫn có gió mạnh trên mức 1.5 (m/s).</li>
+                        </div>
+                        <!-- Wd -->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_Wd_Mul.png" alt="Biểu đồ phân bố Hướng gió" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 9: Phân bố Hướng gió.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>SN (Đông Nam) và W (Tây) là hai hướng gió chính.</li>
+                            <li>Các hướng khác xuất hiện ít, phân bố không đồng đều.</li>
+                            <li>Biểu đồ có dạng hai đỉnh rõ rệt, tập trung vào 2 hướng chính.</li>
+                        </div>
+                        <!-- Prep -->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_Prep_Mul.png" alt="Biểu đồ phân bố Lượng mưa" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 10: Phân bố Lượng mưa.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Số ngày không mưa chiếm đa số.</li>
+                            <li>Lượng mưa >500mm rất hiếm, ít xảy ra mưa lớn.</li>
+                            <li>Biểu đồ lệch phải rõ.</li>
+                        </div>
+                        <!-- Sun -->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_Sun_Mul.png" alt="Biểu đồ phân bố Ánh sáng mặt trời" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 11: Phân bố Ánh sáng mặt trời.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Giờ nắng phân bố đều, tập trung từ 170-220 giờ/tháng.</li>
+                            <li>Dưới 150 và trên 220 giờ rất hiếm, ít giá trị cực đoan.</li>
+                            <li>Biểu đồ phủ đều từ 110 đến 275 giờ/tháng.</li>
+                        </div>
+                    </div>
+
+                    <h4 class="text-lg font-semibold my-4 text-indigo-600">2. Phân Bố Các Chất Ô Nhiễm Khác</h4>
+                     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <!-- SO2, HNO3, HCl, NH3 -->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_SO2_Mul.png" alt="Phân bố SO2" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 12: Phân bố SO₂.</p>
+                        </div>
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_HNO3_Mul.png" alt="Phân bố HNO3" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 13: Phân bố HNO₃.</p>
+                        </div>
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_Hcl_Mul.png" alt="Phân bố HCl" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 14: Phân bố HCl.</p>
+                        </div>
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_NH3_Mul.png" alt="Phân bố NH3" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 15: Phân bố NH₃.</p>
+                        </div>
+                        <!-- SO42-, NO3-, NH4+ (multivariate context) -->
+                         <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_SO42_Mul.png" alt="Phân bố SO42- đa biến" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 16: Phân bố SO₄²⁻ (Đa biến).</p>
+                        </div>
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_NO3-_Mul.png" alt="Phân bố NO3- đa biến" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 17: Phân bố NO₃⁻ (Đa biến).</p>
+                        </div>
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/his_NH4_Mul.png" alt="Phân bố NH4+ đa biến" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 18: Phân bố NH₄⁺ (Đa biến).</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed mb-4"><strong>Nhận xét chung (Histogram đa biến):</strong> Các chất SO₂, HNO₃, NH₃, NH₄⁺ thường lệch phải, có khả năng outliers. HCl, NH₃, NH₄⁺ xuất hiện nhiều giá trị ngoại lai. SO₄²⁻ (đa biến) phân bố đều và rộng, đỉnh ở 6 μg/m³. NO₃⁻ (đa biến) dạng bimodal, đỉnh cao nhất 5.2 μg/m³.</p>
+
+                    <h4 class="text-lg font-semibold my-4 text-indigo-600">3. Boxplot Các Yếu Tố Khí Tượng và Chất Ô Nhiễm</h4>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                        <!-- Boxplots: Temp, RH, Ws, Wd, Prep, Sun -->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/box_Temp_Mul.png" alt="Boxplot Nhiệt độ" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 19: Boxplot Nhiệt độ.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Trung vị ở 28.5°C, là mức nhiệt điển hình.</li>
+                            <li>Nhiệt độ dao động từ ~26.5°C đến ~30.8°C, IQR ~1.5°C, cho thấy độ ổn định cao.</li>
+                            <li>Có vài ngoại lệ >31°C, thể hiện một số ngày nhiệt độ tăng bất thường</li>
+                        </div>
+
+                        <!--Độ ẩm-->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/box_RH_Mul.png" alt="Boxplot Độ ẩm" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 20: Boxplot Độ ẩm.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>#
+                            <li>Độ ẩm chủ yếu nằm trong khoảng 70-80%, trung bình 73%.</li>
+                            <li>Dao động từ 63% đến 82%, IQR ~6% cho thấy độ ổn định cao.</li>
+                            <li>Một vài giá trị ngoại lai trên 80% và dưới 60% xuất hiện nhưng hiếm.</li>
+                        </div>
+
+                        <!--lượng mưa-->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/box_Prep_Mul.png" alt="Boxplot Lượng mưa" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 21: Boxplot Lượng mưa.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Trung vị 160 mm, là lượng mưa thường gặp.</li>
+                            <li>Có ngoại lệ 800 mm, cho thấy đôi khi xuất hiện mưa lớn, bão.</li>
+                            <li>IQR rộng, lượng mưa biến động mạnh.</li>
+                        </div>
+
+                        <!--Ánh sáng mặt trời-->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/box_Sun_Mul.png" alt="Boxplot Ánh sáng mặt trời" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 22: Boxplot Ánh sáng mặt trời.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Trung vị 185 giờ, phần lớn các tháng có số giờ nắng cao.</li>
+                            <li>Ngoại lai dưới 130 và trên 210 giờ cho thấy có lúc nắng ít hoặc nhiều, phản ánh ngày mưa và khô hạn.</li>
+                        </div>
+
+                         <!--Tốc độ gió-->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/box_Ws_Mul.png" alt="Boxplot Ánh sáng mặt trời" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 23: Boxplot Tốc độ gió.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Gió tập trung chủ yếu từ 1-1.3 m/s, trung bình 1.2 m/s, cho thấy mức nhẹ và ổn định.</li>
+                            <li>IQR nhỏ, tốc độ biến thiên ít.</li>
+                            <li>Một vài giá trị ngoại lai xuất hiện khi gió vượt 2 m/s.</li>
+                        </div>
+
+                         <!--Hướng gió-->
+                        <div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                            <img src="img/PTDL/box_Wd_Mul.png" alt="Boxplot Ánh sáng mặt trời" class="rounded-lg shadow-md w-full mb-2">
+                            <p class="text-sm text-center mt-1 text-gray-600">Hình 24: Boxplot Hướng gió.</p>
+                            <h5 class="text-md font-medium mt-4 mb-2"><strong>Nhận xét:</strong></h5>
+                            <li>Hướng gió đa dạng, phân bố từ Tây đến Bắc.</li>
+                            <li>Trung bình là hướng Tây Nam (SW), phổ biến nhất.</li>
+                            <li>IQR rộng, nhiều hướng được ghi nhận.</li>
+                        </div>
+
+                    </div>
+                    <div class="p-4 border border-gray-200 rounded-lg bg-gray-50 mb-6">
+                        <img src="img/PTDL/box_Mul2.png" alt="Biểu đồ Boxplot của tất cả các chất ô nhiễm" class="rounded-lg shadow-md w-full mx-auto">
+                        <p class="text-sm text-center mt-2 text-gray-600">Hình 25: Boxplot của các chất ô nhiễm (SO₂, HNO₃, HCl, NH₃, SO₄²⁻, NO₃⁻, NH₄⁺).</p>
+                        <p class="text-gray-700 mt-2 leading-relaxed"><strong>Nhận xét Boxplot đa biến:</strong> SO₄²⁻ có nồng độ cao nhất. SO₂, HNO₃, NH₄⁺ nồng độ thấp nhưng có nhiều outliers. NH₃ nồng độ cao hơn, nhiều outliers.</p>
+                    </div>
+
+
+                    <h4 class="text-lg font-semibold my-4 text-indigo-600">4. Tương Quan Giữa Các Chất Ô Nhiễm và Yếu Tố Khí Tượng (Heatmap Đa biến)</h4>
+                    <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <img src="img/PTDL/heat_Mul.png" alt="Biểu đồ Heatmap tương quan đa biến" class="rounded-lg shadow-md w-full mx-auto">
+                        <p class="text-sm text-center mt-2 text-gray-600">Hình 26: Heatmap tương quan các chất ô nhiễm và yếu tố khí tượng.</p>
+                        <h5 class="text-md font-medium mt-4 mb-2">Nhận xét chính (Heatmap đa biến):</h5>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700 leading-relaxed">
+                            <li><strong>SO₄²⁻ và NO₃⁻:</strong> Tương quan rất cao (0.92).</li>
+                            <li><strong>NH₃</strong> tương quan khá cao với SO₄²⁻ (0.60) và NO₃⁻ (0.56).</li>
+                            <li><strong>SO₂</strong> tương quan âm với SO₄²⁻ (-0.52), NO₃⁻ (-0.58), NH₃ (-0.62).</li>
+                            <li><strong>Nhiệt độ (Temp) và Thời gian nắng (Sun):</strong> Tương quan dương (0.36).</li>
+                            <li><strong>Độ ẩm (RH) và Lượng mưa (Prep):</strong> Tương quan dương (0.32).</li>
+                            <li><strong>Lượng mưa (Prep) và Thời gian nắng (Sun):</strong> Tương quan âm (-0.34).</li>
+                            <li><strong>Lượng mưa (Prep)</strong> có tương quan âm với hầu hết các chất ô nhiễm (hiệu ứng rửa trôi).</li>
+                        </ul>
+                    </div>
+                     <h5 class="text-md font-medium mt-6 mb-2">Tổng kết về yếu tố khí tượng và chất ô nhiễm (Đa biến):</h5>
+                     <ul class="list-disc list-inside space-y-1 text-gray-700 leading-relaxed">
+                        <li>Lượng mưa (Prep) có tác động rửa trôi, làm giảm nồng độ chất ô nhiễm.</li>
+                        <li>Tốc độ gió (Ws) giúp phát tán và pha loãng chất ô nhiễm.</li>
+                        <li>Bức xạ mặt trời (Sun) có thể thúc đẩy phản ứng quang hóa, tăng hình thành SO₄²⁻, NO₃⁻.</li>
+                        <li>HCl có xu hướng tương quan khác biệt, có thể do nguồn phát thải riêng.</li>
+                    </ul>
+                </section>
+            </section>
+        </div>
+
+        <div id="experimentalResults" class="tab-content">
+            <section class="bg-white p-6 rounded-lg shadow-lg mb-8">
+                <h2 class="text-2xl font-semibold mb-6 text-blue-700 border-b pb-2">Kết Quả Thực Nghiệm Chi Tiết Theo Timestep (n=2, 3, 4)</h2>
+
+                <!-- KẾT QUẢ ĐƠN BIẾN -->
+                <section class="mb-10">
+                    <h3 class="text-xl font-bold mb-4 text-green-700 py-2 bg-green-50 px-3 rounded-md">A. Kết Quả Cho Bài Toán Dự Đoán Chuỗi Thời Gian Đơn Biến</h3>
+                    <p class="text-md text-gray-600 mb-6">So sánh chi tiết hiệu suất (R², RMSE, MAE) của các mô hình với các timestep dự đoán n=2, n=3, và n=4 cho từng chất ô nhiễm.</p>
+
+                    <!-- 1. Linear Regression (LR) - Đơn biến -->
+                    <div class="model-section mb-8 p-4 border rounded-lg">
+                        <h4>1. Mô hình Linear Regression (LR) - Đơn biến</h4>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th>Chất Ô Nhiễm</th>
+                                        <th>Timestep</th>
+                                        <th>R²</th>
+                                        <th>RMSE</th>
+                                        <th>MAE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- SO42- -->
+                                    <tr><td rowspan="3">SO₄²⁻</td><td class="font-bold text-green-600">n=2</td><td class="font-bold text-green-600">0.9618</td><td class="font-bold text-green-600">0.0690</td><td class="font-bold text-green-600">0.0513</td></tr>
+                                    <tr><td>n=3</td><td>0.8761</td><td>0.1242</td><td>0.0941</td></tr>
+                                    <tr><td>n=4</td><td>0.8573</td><td>0.1333</td><td>0.0997</td></tr>
+                                    <!-- NO3- -->
+                                    <tr><td rowspan="3">NO₃⁻</td><td class="font-bold text-green-600">n=2</td><td class="font-bold text-green-600">0.9410</td><td class="font-bold text-green-600">0.1274</td><td class="font-bold text-green-600">0.1050</td></tr>
+                                    <tr><td>n=3</td><td>0.7838</td><td>0.2438</td><td>0.1998</td></tr>
+                                    <tr><td>n=4</td><td>0.7810</td><td>0.2454</td><td>0.2007</td></tr>
+                                    <!-- NH4+ -->
+                                    <tr><td rowspan="3">NH₄⁺</td><td>n=2</td><td>0.5962</td><td>0.1583</td><td>0.1315</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=3</td><td class="font-bold text-green-600">0.7070</td><td class="font-bold text-green-600">0.1349</td><td class="font-bold text-green-600">0.1044</td></tr>
+                                    <tr><td>n=4</td><td>0.6724</td><td>0.1426</td><td>0.1131</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm mt-2 text-gray-700"><strong>Nhận xét LR (Đơn biến):</strong> Hiệu suất tốt nhất thường đạt được ở timestep n=2 cho SO₄²⁻ và NO₃⁻. Đối với NH₄⁺, n=3 cho R² cao hơn một chút so với n=2. Nhìn chung, R² giảm khi timestep tăng đối với SO₄²⁻ và NO₃⁻.</p>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div><img src="img/Result/LR_SO42_Uni_n2.png" alt="LR SO42- n=2" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 27: Kết quả tốt nhất Linear Regression (Đơn biến) target: SO₄²⁻ (n=2)</p></div>
+                            <div><img src="img/Result/LR_NO3_Uni_n2.png" alt="LR NO3- n=2" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 28: Kết quả tốt nhất Linear Regression (Đơn biến) target:NO₃⁻ (n=2)</p></div>
+                            <div><img src="img/Result/LR_NH4_Uni_n3.png" alt="LR NH4+ n=3" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 29: Kết quả tốt nhất Linear Regression (Đơn biến) target:NH₄⁺ (n=3)</p></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Support Vector Regression (SVR) - Đơn biến -->
+                    <div class="model-section mb-8 p-4 border rounded-lg">
+                        <h4>2. Mô hình Support Vector Regression (SVR) - Đơn biến</h4>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead class="bg-gray-100">
+                                    <tr><th>Chất Ô Nhiễm</th><th>Timestep</th><th>R²</th><th>RMSE</th><th>MAE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td rowspan="3">SO₄²⁻</td><td class="font-bold text-green-600">n=2</td><td class="font-bold text-green-600">0.9569</td><td class="font-bold text-green-600">0.0732</td><td class="font-bold text-green-600">0.0548</td></tr>
+                                    <tr><td>n=3</td><td>0.7381</td><td>0.1806</td><td>0.1458</td></tr>
+                                    <tr><td>n=4</td><td>0.6799</td><td>0.1996</td><td>0.1614</td></tr>
+
+                                    <tr><td rowspan="3">NO₃⁻</td><td class="font-bold text-green-600">n=2</td><td class="font-bold text-green-600">0.8583</td><td class="font-bold text-green-600">0.1973</td><td class="font-bold text-green-600">0.1562</td></tr>
+                                    <tr><td>n=3</td><td>0.6746</td><td>0.2991</td><td>0.2416</td></tr>
+                                    <tr><td>n=4</td><td>0.5829</td><td>0.3386</td><td>0.2736</td></tr>
+
+                                    <tr><td rowspan="3">NH₄⁺</td><td class="font-bold text-green-600">n=2</td><td class="font-bold text-green-600">0.7950</td><td class="font-bold text-green-600">0.1128</td><td class="font-bold text-green-600">0.0957</td></tr>
+                                    <tr><td>n=3</td><td>0.7729</td><td>0.1187</td><td>0.0960</td></tr>
+                                    <tr><td>n=4</td><td>0.7900</td><td>0.1142</td><td>0.0911</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm mt-2 text-gray-700"><strong>Nhận xét SVR (Đơn biến):</strong> Cho SO₄²⁻ và NO₃⁻, R² giảm đáng kể khi tăng timestep. NH₄⁺ cho thấy R² khá ổn định và cao nhất tại timestep n=2.</p>
+                         <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div><img src="img/Result/SVR_SO42_Uni_n2.png" alt="SVR SO42- n=2" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 30: Kết quả tốt nhất SVR (Đơn biến) target:SO₄²⁻ (n=2)</p></div>
+                            <div><img src="img/Result/SVR_NO3_Uni_n2.png" alt="SVR NO3- n=2" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 31: Kết quả tốt nhất SVR (Đơn biến) target:NO₃⁻ (n=2)</p></div>
+                            <div><img src="img/Result/SVR_NH4_Uni_n2.png" alt="SVR NH4+ n=2" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 32: Kết quả tốt nhất Linear SVR (Đơn biến) target:NH₄⁺ (n=2)</p></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Random Forest (RF) - Đơn biến -->
+                    <div class="model-section mb-8 p-4 border rounded-lg">
+                        <h4>3. Mô hình Random Forest (RF) - Đơn biến</h4>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead class="bg-gray-100">
+                                    <tr><th>Chất Ô Nhiễm</th><th>Timestep</th><th>R²</th><th>RMSE</th><th>MAE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td rowspan="3">SO₄²⁻</td><td class="font-bold text-green-600">n=2</td><td class="font-bold text-green-600">0.3609</td><td class="font-bold text-green-600">0.2821</td><td class="font-bold text-green-600">0.2239</td></tr>
+                                    <tr><td>n=3</td><td>0.3117</td><td>0.2927</td><td>0.2392</td></tr>
+                                    <tr><td>n=4</td><td>0.3125</td><td>0.2926</td><td>0.2416</td></tr>
+
+                                    <tr><td rowspan="3">NO₃⁻</td><td class="font-bold text-green-600">n=2</td><td class="font-bold text-green-600">0.5323</td><td class="font-bold text-green-600">0.3585</td><td class="font-bold text-green-600">0.2875</td></tr>
+                                    <tr><td>n=3</td><td>0.4650</td><td>0.3834</td><td>0.3132</td></tr>
+                                    <tr><td>n=4</td><td>0.4765</td><td>0.3793</td><td>0.3040</td></tr>
+
+                                    <tr><td rowspan="3">NH₄⁺</td><td>n=2</td><td>0.6228</td><td>0.1530</td><td>0.1391</td></tr>
+                                    <tr><td>n=3</td><td>0.5583</td><td>0.1656</td><td>0.1518</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.6795</td><td class="font-bold text-green-600">0.1410</td><td class="font-bold text-green-600">0.1312</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm mt-2 text-gray-700"><strong>Nhận xét RF (Đơn biến):</strong> RF có hiệu suất thấp hơn đáng kể so với LR và SVR trong bài toán đơn biến. R² cao nhất cho NH₄⁺ tại n=4, nhưng vẫn thấp hơn SVR và LR.</p>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div><img src="img/Result/RF_SO42_Uni_n2.png" alt="RF SO42- n=2" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 33: Kết quả tốt nhất Random Forest (Đơn biến) target:SO₄²⁻ (n=2)</p></div>
+                            <div><img src="img/Result/RF_NO3_Uni_n2.png" alt="RF NO3- n=2" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 34: Kết quả tốt nhất Random Forest (Đơn biến) target:NO₃⁻ (n=2)</p></div>
+                            <div><img src="img/Result/RF_NH4_Uni_n4.png" alt="RF NH4+ n=4" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 35: Kết quả tốt nhất Random Forest (Đơn biến) target:NH₄⁺ (n=4)</p></div>
+                        </div>
+                    </div>
+
+                    <!-- 4. XGBoost - Đơn biến -->
+                    <div class="model-section mb-8 p-4 border rounded-lg">
+                        <h4>4. Mô hình XGBoost - Đơn biến</h4>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead class="bg-gray-100">
+                                    <tr><th>Chất Ô Nhiễm</th><th>Timestep</th><th>R²</th><th>RMSE</th><th>MAE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td rowspan="3">SO₄²⁻</td><td>n=2</td><td>0.6042</td><td>0.2220</td><td>0.1573</td></tr>
+                                    <tr><td>n=3</td><td>0.6191</td><td>0.2178</td><td>0.1534</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.6694</td><td class="font-bold text-green-600">0.2029</td><td class="font-bold text-green-600">0.1540</td></tr>
+
+                                    <tr><td rowspan="3">NO₃⁻</td><td>n=2</td><td>0.6532</td><td>0.3087</td><td>0.2635</td></tr>
+                                    <tr><td>n=3</td><td>0.6900</td><td>0.2919</td><td>0.2544</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.6986</td><td class="font-bold text-green-600">0.2878</td><td class="font-bold text-green-600">0.2415</td></tr>
+
+                                    <tr><td rowspan="3">NH₄⁺</td><td class="font-bold text-green-600">n=2</td><td class="font-bold text-green-600">0.4771</td><td class="font-bold text-green-600">0.1802</td><td class="font-bold text-green-600">0.1560</td></tr>
+                                    <tr><td>n=3</td><td>0.4708</td><td>0.1812</td><td>0.1615</td></tr>
+                                    <tr><td>n=4</td><td>0.4393</td><td>0.1866</td><td>0.1673</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                         <p class="text-sm mt-2 text-gray-700"><strong>Nhận xét XGBoost (Đơn biến):</strong> Hiệu suất trung bình, tốt hơn RF nhưng kém LR và SVR. R² có xu hướng tăng nhẹ hoặc ổn định khi tăng timestep cho SO₄²⁻ và NO₃⁻.</p>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div><img src="img/Result/XGB_SO42_Uni_n4.png" alt="XGB SO42- n=4" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 36: Kết quả tốt nhất XGBoost (Đơn biến) target:SO₄²⁻ (n=4)</p></div>
+                            <div><img src="img/Result/XGB_NO3_Uni_n4.png" alt="XGB NO3- n=4" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 37: Kết quả tốt nhất XGBoost (Đơn biến) target:NO₃⁻ (n=4)</p></div>
+                            <div><img src="img/Result/XGB_NH4_Uni_n2.png" alt="XGB NH4+ n=2" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 38: Kết quả tốt nhất XGBoost (Đơn biến) target:NH₄⁺ (n=2)</p></div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="section-divider"></div>
+
+                <!-- KẾT QUẢ ĐA BIẾN -->
+                <section>
+                    <h3 class="text-xl font-bold mb-4 text-green-700 py-2 bg-green-50 px-3 rounded-md">B. Kết Quả Cho Bài Toán Dự Đoán Chuỗi Thời Gian Đa Biến</h3>
+                    <p class="text-md text-gray-600 mb-6">So sánh chi tiết hiệu suất (R², RMSE, MAE) của các mô hình khi sử dụng nhiều yếu tố đầu vào, với các timestep dự đoán n=2, n=3, và n=4.</p>
+
+                    <!-- 1. Linear Regression (LR) - Đa biến -->
+                    <div class="model-section mb-8 p-4 border rounded-lg">
+                        <h4>1. Mô hình Linear Regression (LR) - Đa biến</h4>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead class="bg-gray-100">
+                                    <tr><th>Chất Ô Nhiễm</th><th>Timestep</th><th>R²</th><th>RMSE</th><th>MAE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td rowspan="3">SO₄²⁻</td><td>n=2</td><td>0.6192</td><td>0.5827</td><td>0.4521</td></tr>
+                                    <tr><td>n=3</td><td>0.6749</td><td>0.5383</td><td>0.4027</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.7464</td><td class="font-bold text-green-600">0.4755</td><td class="font-bold text-green-600">0.3633</td></tr>
+
+                                    <tr><td rowspan="3">NO₃⁻</td><td>n=2</td><td>0.6207</td><td>0.5823</td><td>0.4534</td></tr>
+                                    <tr><td>n=3</td><td>0.6695</td><td>0.5436</td><td>0.4112</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.7467</td><td class="font-bold text-green-600">0.4759</td><td class="font-bold text-green-600">0.3667</td></tr>
+
+                                    <tr><td rowspan="3">NH₄⁺</td><td>n=2</td><td>0.6209</td><td>0.5822</td><td>0.4519</td></tr>
+                                    <tr><td>n=3</td><td>0.6766</td><td>0.5378</td><td>0.4115</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.7238</td><td class="font-bold text-green-600">0.4970</td><td class="font-bold text-green-600">0.3704</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm mt-2 text-gray-700"><strong>Nhận xét LR (Đa biến):</strong> Hiệu suất R² cải thiện đáng kể khi tăng timestep từ n=2 lên n=4 cho tất cả các chất. Tuy nhiên, R² vẫn thấp hơn so với các mô hình phức tạp hơn trong bài toán đa biến.</p>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div><img src="img/Result/LR_SO42_Mul_n4.png" alt="LR SO42- n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 39: Kết quả tốt nhất Linear Regression (Đa biến) target:SO₄²⁻ (n=4)</p></div>
+                            <div><img src="img/Result/LR_NO3_Mul_n4.png" alt="LR NO3- n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 40: Kết quả tốt nhất Linear Regression (Đa biến) target:NO₃⁻ (n=4)</p></div>
+                            <div><img src="img/Result/LR_NH4_Mul_n4.png" alt="LR NH4+ n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 41: Kết quả tốt nhất Linear Regression (Đa biến) target:NH₄⁺ (n=4)</p></div>
+                        </div>
+                    </div>
+
+                     <!-- 2. Random Forest (RF) - Đa biến -->
+                    <div class="model-section mb-8 p-4 border rounded-lg">
+                        <h4>2. Mô hình Random Forest (RF) - Đa biến</h4>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead class="bg-gray-100">
+                                    <tr><th>Chất Ô Nhiễm</th><th>Timestep</th><th>R²</th><th>RMSE</th><th>MAE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td rowspan="3">SO₄²⁻</td><td>n=2</td><td>0.9673</td><td>0.1709</td><td>0.1317</td></tr>
+                                    <tr><td>n=3</td><td>0.9675</td><td>0.1702</td><td>0.1329</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.9811</td><td class="font-bold text-green-600">0.1297</td><td class="font-bold text-green-600">0.1053</td></tr>
+
+                                    <tr><td rowspan="3">NO₃⁻</td><td>n=2</td><td>0.9664</td><td>0.1732</td><td>0.1356</td></tr>
+                                    <tr><td>n=3</td><td>0.9625</td><td>0.1829</td><td>0.1402</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.9805</td><td class="font-bold text-green-600">0.1319</td><td class="font-bold text-green-600">0.1076</td></tr>
+
+                                    <tr><td rowspan="3">NH₄⁺</td><td>n=2</td><td>0.9661</td><td>0.1741</td><td>0.1362</td></tr>
+                                    <tr><td>n=3</td><td>0.9621</td><td>0.1841</td><td>0.1385</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.9832</td><td class="font-bold text-green-600">0.1225</td><td class="font-bold text-green-600">0.0950</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm mt-2 text-gray-700"><strong>Nhận xét RF (Đa biến):</strong> RF cho thấy hiệu suất vượt trội trong bài toán đa biến, với R² rất cao, đặc biệt tại timestep n=4 (đạt trên 0.98 cho tất cả các chất). RMSE và MAE cũng rất thấp.</p>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div><img src="img/Result/RF_SO42_Mul_n4.png" alt="RF SO42- n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 42: Kết quả tốt nhất Random Forest (Đa biến) target:SO₄²⁻ (n=4)</p></div>
+                            <div><img src="img/Result/RF_NO3_Mul_n4.png" alt="RF NO3- n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 43: Kết quả tốt nhất XGBoost (Đa biến) target:NO₃⁻ (n=4)</p></div>
+                            <div><img src="img/Result/RF_NH4_Mul_n4.png" alt="RF NH4+ n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 44: Kết quả tốt nhất XGBoost (Đa biến) target:NH₄⁺ (n=4)</p></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Support Vector Regression (SVR) - Đa biến -->
+                    <div class="model-section mb-8 p-4 border rounded-lg">
+                        <h4>3. Mô hình Support Vector Regression (SVR) - Đa biến</h4>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead class="bg-gray-100">
+                                    <tr><th>Chất Ô Nhiễm</th><th>Timestep</th><th>R²</th><th>RMSE</th><th>MAE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td rowspan="3">SO₄²⁻</td><td>n=2</td><td>0.9465</td><td>0.2184</td><td>0.2087</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=3</td><td class="font-bold text-green-600">0.9504</td><td class="font-bold text-green-600">0.2103</td><td class="font-bold text-green-600">0.1986</td></tr>
+                                    <tr><td>n=4</td><td>0.9478</td><td>0.2156</td><td>0.2065</td></tr>
+
+                                    <tr><td rowspan="3">NO₃⁻</td><td>n=2</td><td>0.9434</td><td>0.2247</td><td>0.2191</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=3</td><td class="font-bold text-green-600">0.9504</td><td class="font-bold text-green-600">0.2102</td><td class="font-bold text-green-600">0.1966</td></tr>
+                                    <tr><td>n=4</td><td>0.9493</td><td>0.2126</td><td>0.2030</td></tr>
+
+                                    <tr><td rowspan="3">NH₄⁺</td><td>n=2</td><td>0.9453</td><td>0.2209</td><td>0.2129</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=3</td><td class="font-bold text-green-600">0.9500</td><td class="font-bold text-green-600">0.2111</td><td class="font-bold text-green-600">0.2006</td></tr>
+                                    <tr><td>n=4</td><td>0.9462</td><td>0.2191</td><td>0.2112</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm mt-2 text-gray-700"><strong>Nhận xét SVR (Đa biến):</strong> SVR cũng cho kết quả rất tốt (R² ~0.94-0.95) và khá ổn định qua các timestep. Timestep n=3 thường cho R² nhỉnh hơn một chút.</p>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div><img src="img/Result/SVR_SO42_Mul_n3.png" alt="SVR SO42- n=3 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 45: Kết quả tốt nhất XGBoost (Đa biến) target:SO₄²⁻ (n=3)</p></div>
+                            <div><img src="img/Result/SVR_NO3_Mul_n3.png" alt="SVR NO3- n=3 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 46: Kết quả tốt nhất XGBoost (Đa biến) target:NO₃⁻ (n=3)</p></div>
+                            <div><img src="img/Result/SVR_NH4_Mul_n3.png" alt="SVR NH4+ n=3 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 47: Kết quả tốt nhất XGBoost (Đa biến) target:NH₄⁺ (n=3)</p></div>
+                        </div>
+                    </div>
+
+                    <!-- 4. XGBoost - Đa biến -->
+                    <div class="model-section mb-8 p-4 border rounded-lg">
+                        <h4>4. Mô hình XGBoost - Đa biến</h4>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead class="bg-gray-100">
+                                    <tr><th>Chất Ô Nhiễm</th><th>Timestep</th><th>R²</th><th>RMSE</th><th>MAE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td rowspan="3">SO₄²⁻</td><td>n=2</td><td>0.8483</td><td>0.3678</td><td>0.2952</td></tr>
+                                    <tr><td>n=3</td><td>0.8627</td><td>0.3498</td><td>0.2716</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.8715</td><td class="font-bold text-green-600">0.3385</td><td class="font-bold text-green-600">0.2740</td></tr>
+
+                                    <tr><td rowspan="3">NO₃⁻</td><td>n=2</td><td>0.8508</td><td>0.3647</td><td>0.2963</td></tr>
+                                    <tr><td>n=3</td><td>0.8617</td><td>0.3511</td><td>0.2706</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.8839</td><td class="font-bold text-green-600">0.3217</td><td class="font-bold text-green-600">0.2548</td></tr>
+
+                                    <tr><td rowspan="3">NH₄⁺</td><td>n=2</td><td>0.8508</td><td>0.3647</td><td>0.2963</td></tr>
+                                    <tr><td>n=3</td><td>0.8617</td><td>0.3511</td><td>0.2706</td></tr>
+                                    <tr><td class="font-bold text-green-600">n=4</td><td class="font-bold text-green-600">0.8839</td><td class="font-bold text-green-600">0.3217</td><td class="font-bold text-green-600">0.2548</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                         <p class="text-sm mt-2 text-gray-700"><strong>Nhận xét XGBoost (Đa biến):</strong> Hiệu suất tốt (R² ~0.85-0.88), cải thiện khi tăng timestep. Tốt hơn LR nhưng chưa bằng RF và SVR trong bài toán đa biến này.</p>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div><img src="img/Result/XGB_SO42_Mul_n4.png" alt="XGB SO42- n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 48: Kết quả tốt nhất XGBoost (Đa biến) target:SO₄²⁻ (n=4)</p></div>
+                            <div><img src="img/Result/XGB_NO3_Mul_n4.png" alt="XGB NO3- n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 49: Kết quả tốt nhất XGBoost (Đa biến) target:NO₃⁻ (n=4)</p></div>
+                            <div><img src="img/Result/XGB_NH4_Mul_n4.png" alt="XGB NH4+ n=4 Đa biến" class="rounded-lg shadow-md"><p class="text-xs text-center mt-1">Hình 50: Kết quả tốt nhất XGBoost (Đa biến) target:NH₄⁺ (n=4)</p></div>
+                        </div>
+                    </div>
+
+                </section>
+            </section>
+        </div>
+
+        <!-- Kết luận chung -->
+        <section class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-700">Kết Luận Chung</h2>
+            <p class="text-lg leading-relaxed mb-3">
+                Nghiên cứu đã cung cấp một cái nhìn tổng quan và chi tiết về đặc điểm của các chất ô nhiễm không khí và các yếu tố khí tượng liên quan, áp dụng cho cả hai hướng tiếp cận dự đoán đơn biến và đa biến.
+                Việc áp dụng và so sánh các mô hình học máy cho thấy tiềm năng lớn trong việc dự đoán nồng độ chất ô nhiễm, với hiệu suất thay đổi tùy thuộc vào mô hình, loại bài toán và timestep dự đoán.
+            </p>
+            <p class="text-lg leading-relaxed">
+                Trong bài toán dự đoán <strong>đơn biến</strong>, <strong>Linear Regression</strong> và <strong>Support Vector Regression</strong> thường cho hiệu quả cao nhất, đặc biệt với timestep ngắn (n=2). Hiệu suất có xu hướng giảm khi tăng timestep cho các mô hình này với SO₄²⁻ và NO₃⁻.
+                Đối với bài toán dự đoán <strong>đa biến</strong>, <strong>Random Forest</strong> nổi bật với khả năng dự đoán chính xác vượt trội (R² > 0.98), đặc biệt khi timestep tăng lên n=4. Các mô hình SVR và XGBoost cũng cho kết quả tốt, trong khi Linear Regression tỏ ra kém hiệu quả hơn khi xử lý mối quan hệ đa biến phức tạp.
+                Những kết quả này nhấn mạnh tầm quan trọng của việc lựa chọn mô hình và cấu hình phù hợp cho từng bài toán cụ thể để xây dựng các hệ thống cảnh báo sớm và đưa ra các biện pháp kiểm soát ô nhiễm không khí hiệu quả hơn.
+            </p>
+        </section>
+    </main>
+
+    <footer class="bg-blue-700 text-white text-center p-6 mt-12">
+        <p>&copy; 2024 Trang Web Demo Phân Tích Chất Lượng Không Khí.</p>
+    </footer>
+
+    <script>
+        function openTab(event, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            event.currentTarget.className += " active";
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            openTab(event, 'dataAnalysis');
+           
+        });
+    </script>
+
+</body>
+</html>
